@@ -68,7 +68,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
                   Afiliado Identificado en Sesión
                 </p>
                 <p className="text-sm font-bold text-slate-900">
-                  {pacienteAutenticado.nombre || pacienteAutenticado.nombres} • C.C. {pacienteAutenticado.documento || pacienteAutenticado.numeroDocumento}
+                  {[pacienteAutenticado.nombres || pacienteAutenticado.nombre, pacienteAutenticado.apellidos].filter(Boolean).join(" ")} • C.C. {pacienteAutenticado.documento || pacienteAutenticado.numeroDocumento}
                 </p>
               </div>
             </div>
