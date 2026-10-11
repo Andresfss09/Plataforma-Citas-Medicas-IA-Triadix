@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
         horaFin: schema.citas.horaFin,
         estado: schema.citas.estado,
         canal: schema.citas.canal,
-        motivoConsulta: schema.citas.motivoConsulta,
+        motivoConsultaEnc: schema.citas.motivoConsultaEnc,
         createdAt: schema.citas.createdAt,
         afiliadoId: schema.afiliados.id,
         afiliadoDoc: schema.afiliados.numeroDocumento,
@@ -52,7 +52,7 @@ export async function GET(req: NextRequest) {
       .limit(500);
 
     // Mapear y desencriptar datos para el reporte
-    let datos = citasRaw.map((c) => {
+    let datos: any[] = citasRaw.map((c: any) => {
       let nom = "Afiliado";
       let ape = "";
       let doc = c.afiliadoDoc || "";
@@ -73,24 +73,24 @@ export async function GET(req: NextRequest) {
 
     // Aplicar filtros por fecha (año, mes, día) y sede
     if (anio) {
-      datos = datos.filter((d) => d.fechaCita.startsWith(anio));
+      datos = datos.filter((d: any) => d.fechaCita.startsWith(anio));
     }
     if (mes) {
       const mesPadded = mes.padStart(2, "0");
-      datos = datos.filter((d) => {
+      datos = datos.filter((d: any) => {
         const parts = d.fechaCita.split("-");
         return parts[1] === mesPadded;
       });
     }
     if (dia) {
       const diaPadded = dia.padStart(2, "0");
-      datos = datos.filter((d) => {
+      datos = datos.filter((d: any) => {
         const parts = d.fechaCita.split("-");
         return parts[2] === diaPadded;
       });
     }
     if (sedeId && sedeId !== "todas") {
-      datos = datos.filter((d) => d.sedeNombre.toLowerCase().includes(sedeId.toLowerCase()));
+      datos = datos.filter((d: any) => d.sedeNombre.toLowerCase().includes(sedeId.toLowerCase()));
     }
 
     const filtroTexto = [
@@ -123,7 +123,7 @@ export async function GET(req: NextRequest) {
         "Motivo Registrado",
       ];
 
-      const filas = datos.map((d) => [
+      const filas = datos.map((d: any) => [
         `"${d.codigoCita}"`,
         `"${d.fechaCita}"`,
         `"${d.horaInicio}"`,
@@ -141,7 +141,7 @@ export async function GET(req: NextRequest) {
         `"${(d.motivoConsulta || "Control ordinario").replace(/"/g, '""')}"`,
       ]);
 
-      const csvContent = "\uFEFF" + [encabezados.join(";"), ...filas.map((f) => f.join(";"))].join("\r\n");
+      const csvContent = "\uFEFF" + [encabezados.join(";"), ...filas.map((f: any) => f.join(";"))].join("\r\n");
 
       return new NextResponse(csvContent, {
         status: 200,
@@ -210,7 +210,7 @@ export async function GET(req: NextRequest) {
       { label: "ESTADO", x: 760 },
     ];
 
-    cols.forEach((c) => {
+    cols.forEach((c: any) => {
       page.drawText(c.label, {
         x: c.x,
         y: yHeaders,
@@ -224,7 +224,7 @@ export async function GET(req: NextRequest) {
     let currentY = yHeaders - 20;
     const itemsToShow = datos.slice(0, 22);
 
-    itemsToShow.forEach((item, idx) => {
+    itemsToShow.forEach((item: any, idx: number) => {
       // Línea de fondo alternante
       if (idx % 2 === 0) {
         page.drawRectangle({

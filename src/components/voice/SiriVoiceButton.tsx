@@ -99,17 +99,17 @@ export const SiriVoiceButton: React.FC<SiriVoiceButtonProps> = ({
       </div>
 
       <div
-        className="text-center font-bold text-base text-slate-900 tracking-tight"
+        className="text-center font-bold text-base text-slate-950 tracking-tight"
         aria-live="polite"
       >
         {labelEstado}
       </div>
-      <p className="text-xs text-slate-500 max-w-xs text-center mt-1 leading-normal">
+      <p className="text-xs text-slate-600 font-medium max-w-xs text-center mt-1 leading-normal">
         {subtexto}
       </p>
 
-      <div className="mt-4 pt-3 border-t border-slate-200/60 flex items-center gap-2 text-[11px] text-slate-400">
-        <kbd className="px-2 py-0.5 rounded bg-white border border-slate-300 font-mono text-[10px] text-slate-600 shadow-2xs">
+      <div className="mt-4 pt-3 border-t border-slate-200 flex items-center gap-2 text-xs text-slate-600 font-medium">
+        <kbd className="px-2 py-0.5 rounded bg-white border border-slate-300 font-mono text-[11px] text-slate-700 shadow-2xs">
           Espacio
         </kbd>
         <span>Activar / Detener micrófono</span>

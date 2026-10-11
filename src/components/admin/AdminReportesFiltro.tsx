@@ -25,20 +25,20 @@ export function AdminReportesFiltro() {
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-5">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+    <div className="bg-white rounded-2xl border border-slate-300 shadow-md p-6 space-y-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-teal-600" />
-            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
+            <span className="w-2.5 h-2.5 rounded-full bg-teal-700" />
+            <h3 className="text-sm font-black text-slate-950 uppercase tracking-wider">
               Generador de Reportes y Auditoría de Citas
             </h3>
           </div>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-xs text-slate-600 font-medium mt-0.5">
             Exporte la base consolidada de citas médicas filtrada por día, mes y año en formatos oficiales
           </p>
         </div>
-        <span className="text-[11px] font-mono font-medium px-2.5 py-1 rounded-md bg-slate-100 text-slate-600 border border-slate-200 self-start sm:self-auto">
+        <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-md bg-slate-100 text-slate-800 border border-slate-300 self-start sm:self-auto">
           Módulo SGSSS • RIPS Compatible
         </span>
       </div>
@@ -46,13 +46,13 @@ export function AdminReportesFiltro() {
       {/* Controles de Filtrado */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div>
-          <label className="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+          <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
             Año
           </label>
           <select
             value={anio}
             onChange={(e) => setAnio(e.target.value)}
-            className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs text-slate-800 bg-white font-medium focus:ring-1 focus:ring-teal-600 focus:outline-none"
+            className="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-xs text-slate-900 bg-white font-medium focus:ring-1 focus:ring-teal-700 focus:outline-none"
           >
             <option value="2026">2026 (Vigente)</option>
             <option value="2025">2025</option>

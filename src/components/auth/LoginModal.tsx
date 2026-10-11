@@ -117,17 +117,17 @@ export function LoginModal({ onLoginSuccess }: { onLoginSuccess: (paciente: any)
         <div className="lg:col-span-7 p-8 sm:p-10 flex flex-col justify-between bg-white">
           <div>
             <div className="mb-6">
-              <h3 className="text-xl font-bold text-slate-900 tracking-tight">
+              <h3 className="text-xl font-black text-slate-950 tracking-tight">
                 Iniciar Sesión
               </h3>
-              <p className="text-xs text-slate-500 mt-1">
+              <p className="text-xs text-slate-600 font-medium mt-1">
                 Ingrese sus credenciales de afiliado registradas en la base de datos institucional.
               </p>
             </div>
 
             {error && (
-              <div className="mb-5 p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-800 font-medium flex items-start gap-2.5">
-                <svg className="w-4 h-4 text-rose-600 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="mb-5 p-3.5 bg-rose-50 border border-rose-300 rounded-xl text-xs text-rose-950 font-semibold flex items-start gap-2.5">
+                <svg className="w-4 h-4 text-rose-700 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
                 <span>{error}</span>
@@ -136,13 +136,13 @@ export function LoginModal({ onLoginSuccess }: { onLoginSuccess: (paciente: any)
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
                   Tipo de Documento
                 </label>
                 <select
                   value={tipoDocumento}
                   onChange={(e) => setTipoDocumento(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 font-medium text-sm focus:border-teal-600 focus:ring-1 focus:ring-teal-600 focus:outline-none transition shadow-sm"
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-950 font-medium text-sm focus:border-teal-700 focus:ring-1 focus:ring-teal-700 focus:outline-none transition shadow-xs"
                 >
                   <option value="CC">Cédula de Ciudadanía (CC)</option>
                   <option value="TI">Tarjeta de Identidad (TI)</option>
@@ -152,25 +152,25 @@ export function LoginModal({ onLoginSuccess }: { onLoginSuccess: (paciente: any)
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
                   Número de Documento
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="Ingrese su documento de identidad"
+                  placeholder="Ej: 1100015838"
                   value={numeroDocumento}
                   onChange={(e) => setNumeroDocumento(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 font-medium text-sm focus:border-teal-600 focus:ring-1 focus:ring-teal-600 focus:outline-none transition shadow-sm placeholder:text-slate-400 font-mono"
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-950 font-medium text-sm focus:border-teal-700 focus:ring-1 focus:ring-teal-700 focus:outline-none transition shadow-xs placeholder:text-slate-400 font-mono"
                 />
               </div>
 
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                  <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider">
                     Contraseña
                   </label>
-                  <span className="text-[11px] text-slate-400">
+                  <span className="text-xs text-slate-600 font-medium font-mono">
                     triadix + 4 dígitos
                   </span>
                 </div>
@@ -180,7 +180,7 @@ export function LoginModal({ onLoginSuccess }: { onLoginSuccess: (paciente: any)
                   placeholder="••••••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 font-medium text-sm focus:border-teal-600 focus:ring-1 focus:ring-teal-600 focus:outline-none transition shadow-sm placeholder:text-slate-400 font-mono"
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-950 font-medium text-sm focus:border-teal-700 focus:ring-1 focus:ring-teal-700 focus:outline-none transition shadow-xs placeholder:text-slate-400 font-mono"
                 />
               </div>
 
@@ -188,7 +188,7 @@ export function LoginModal({ onLoginSuccess }: { onLoginSuccess: (paciente: any)
                 <button
                   type="submit"
                   disabled={cargando}
-                  className="w-full py-2.5 px-4 rounded-lg bg-teal-700 hover:bg-teal-800 active:bg-teal-900 font-semibold text-white text-sm shadow-sm transition disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full py-3 px-4 rounded-lg bg-teal-800 hover:bg-teal-900 active:bg-teal-950 font-bold text-white text-sm shadow-sm transition disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
                 >
                   {cargando ? (
                     <>
@@ -196,7 +196,7 @@ export function LoginModal({ onLoginSuccess }: { onLoginSuccess: (paciente: any)
                       <span>Validando afiliación...</span>
                     </>
                   ) : (
-                    <span>Ingresar al Portal</span>
+                    <span>Ingresar al Portal Institucional</span>
                   )}
                 </button>
               </div>
@@ -204,12 +204,12 @@ export function LoginModal({ onLoginSuccess }: { onLoginSuccess: (paciente: any)
           </div>
 
           {/* Selector de Casos de Prueba Institucionales */}
-          <div className="mt-6 pt-5 border-t border-slate-100">
+          <div className="mt-6 pt-5 border-t border-slate-200">
             <div className="flex items-center justify-between mb-2.5">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
                 Afiliados de Demostración (Neon DB):
               </span>
-              <span className="text-[10px] text-slate-400 font-medium">Haga clic para autocompletar</span>
+              <span className="text-[11px] text-slate-600 font-medium">Clic para autocompletar</span>
             </div>
 
             <div className="grid grid-cols-2 gap-2">
@@ -218,14 +218,14 @@ export function LoginModal({ onLoginSuccess }: { onLoginSuccess: (paciente: any)
                   key={p.documento}
                   type="button"
                   onClick={() => seleccionarDemo(p)}
-                  className="text-left p-2.5 rounded-lg border border-slate-200 hover:border-teal-600 hover:bg-teal-50/40 transition bg-slate-50/50 cursor-pointer text-xs group"
+                  className="text-left p-2.5 rounded-lg border border-slate-300 hover:border-teal-700 hover:bg-teal-50/60 transition bg-slate-50 cursor-pointer text-xs group"
                 >
-                  <p className="font-semibold text-slate-800 group-hover:text-teal-900 truncate">
+                  <p className="font-bold text-slate-950 group-hover:text-teal-950 truncate">
                     {p.nombre}
                   </p>
-                  <div className="flex items-center justify-between text-[11px] text-slate-500 font-mono mt-0.5">
+                  <div className="flex items-center justify-between text-xs text-slate-700 font-mono mt-0.5">
                     <span>CC: {p.documento}</span>
-                    <span className="text-teal-700 font-medium">{p.clave}</span>
+                    <span className="text-teal-800 font-bold">{p.clave}</span>
                   </div>
                 </button>
               ))}

@@ -243,7 +243,7 @@ export default async function AdminDashboardPage() {
                     </td>
                   </tr>
                 ) : (
-                  ultimasCitas.map((c) => {
+                  ultimasCitas.map((c: any) => {
                     let nom = "Afiliado";
                     let ape = "";
                     try {

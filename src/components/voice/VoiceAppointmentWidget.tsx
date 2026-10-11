@@ -67,7 +67,7 @@ export const VoiceAppointmentWidget: React.FC<VoiceAppointmentWidgetProps> = ({
       <div className="grid lg:grid-cols-12 gap-6 items-start">
         
         {/* Columna Izquierda: Dispositivo de Voz & Entrada Alternativa */}
-        <div className="lg:col-span-5 bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-6">
+        <div className="lg:col-span-5 bg-white rounded-2xl border border-slate-300 shadow-md p-6 space-y-6">
           <SiriVoiceButton
             isListening={isListening}
             isSpeaking={isSpeaking}
@@ -76,8 +76,8 @@ export const VoiceAppointmentWidget: React.FC<VoiceAppointmentWidgetProps> = ({
           />
 
           {/* Entrada de Texto Suplementaria para Accesibilidad */}
-          <form onSubmit={handleEnviarManual} className="pt-5 border-t border-slate-100 space-y-2">
-            <label htmlFor="textoManual" className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+          <form onSubmit={handleEnviarManual} className="pt-5 border-t border-slate-200 space-y-2">
+            <label htmlFor="textoManual" className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
               Entrada Alternativa por Teclado:
             </label>
             <div className="flex gap-2">
@@ -87,11 +87,11 @@ export const VoiceAppointmentWidget: React.FC<VoiceAppointmentWidgetProps> = ({
                 value={textoManual}
                 onChange={(e) => setTextoManual(e.target.value)}
                 placeholder="Escriba su motivo o sede..."
-                className="flex-1 px-3.5 py-2 rounded-lg border border-slate-300 text-sm text-slate-900 bg-white placeholder:text-slate-400 focus:outline-none focus:border-teal-600 focus:ring-1 focus:ring-teal-600 transition"
+                className="flex-1 px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm text-slate-900 bg-white placeholder:text-slate-500 focus:outline-none focus:border-teal-700 focus:ring-1 focus:ring-teal-700 transition"
               />
               <button
                 type="submit"
-                className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold shadow-xs transition cursor-pointer"
+                className="px-5 py-2.5 bg-slate-900 hover:bg-slate-950 text-white rounded-lg text-xs font-bold shadow-xs transition cursor-pointer"
               >
                 Enviar
               </button>

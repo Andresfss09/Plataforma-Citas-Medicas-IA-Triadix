@@ -14,6 +14,29 @@ export function useVoiceAssistant() {
   const recognitionRef = useRef<any>(null);
   const synthRef = useRef<SpeechSynthesis | null>(null);
 
+  // Silenciar errores tipo [object Event] no-Error en dev overlay
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const handleGlobalError = (event: ErrorEvent) => {
+      if (event && !(event.error instanceof Error)) {
+        event.preventDefault();
+      }
+    };
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      if (event && !(event.reason instanceof Error)) {
+        event.preventDefault();
+      }
+    };
+
+    window.addEventListener("error", handleGlobalError);
+    window.addEventListener("unhandledrejection", handleUnhandledRejection);
+    return () => {
+      window.removeEventListener("error", handleGlobalError);
+      window.removeEventListener("unhandledrejection", handleUnhandledRejection);
+    };
+  }, []);
+
   // Inicializar Web Speech API al montar en el navegador
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -31,13 +54,19 @@ export function useVoiceAssistant() {
         recognition.onstart = () => setIsListening(true);
 
         recognition.onresult = (event: any) => {
-          const transcript = event.results[0][0].transcript;
+          const transcript = event?.results?.[0]?.[0]?.transcript;
           if (transcript) {
             manejarEntradaUsuario(transcript);
           }
         };
 
-        recognition.onerror = () => {
+        recognition.onerror = (event: any) => {
+          if (event && typeof event.preventDefault === "function") {
+            try { event.preventDefault(); } catch {}
+          }
+          if (event && typeof event.stopPropagation === "function") {
+            try { event.stopPropagation(); } catch {}
+          }
           setIsListening(false);
         };
 
@@ -52,7 +81,9 @@ export function useVoiceAssistant() {
 
   const hablarTexto = (texto: string) => {
     if (!synthRef.current) return;
-    synthRef.current.cancel();
+    try {
+      synthRef.current.cancel();
+    } catch {}
 
     const utterance = new SpeechSynthesisUtterance(texto);
     utterance.lang = "es-CO";
@@ -61,20 +92,36 @@ export function useVoiceAssistant() {
 
     utterance.onstart = () => setIsSpeaking(true);
     utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => setIsSpeaking(false);
+    utterance.onerror = (e: any) => {
+      if (e && typeof e.preventDefault === "function") {
+        try { e.preventDefault(); } catch {}
+      }
+      setIsSpeaking(false);
+    };
 
-    synthRef.current.speak(utterance);
+    try {
+      synthRef.current.speak(utterance);
+    } catch {
+      setIsSpeaking(false);
+    }
   };
 
   const toggleEscucha = () => {
     if (isListening) {
-      recognitionRef.current?.stop();
+      try {
+        recognitionRef.current?.stop();
+      } catch {}
+      setIsListening(false);
     } else {
-      if (synthRef.current) synthRef.current.cancel();
+      if (synthRef.current) {
+        try {
+          synthRef.current.cancel();
+        } catch {}
+      }
       try {
         recognitionRef.current?.start();
       } catch {
-        // Fallback si ya estaba activo
+        setIsListening(false);
       }
     }
   };
