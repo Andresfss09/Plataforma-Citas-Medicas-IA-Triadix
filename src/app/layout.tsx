@@ -78,10 +78,21 @@ export default function RootLayout({
           </div>
         </header>
 
-        {/* Contenido Principal */}
-        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10" role="main">
-          {children}
-        </main>
+        {/* Contenido Principal con Fondo Familiar Cálido Institucional */}
+        <div className="flex-1 relative flex flex-col">
+          {/* Capa de imagen de fondo de familia con overlay profesional */}
+          <div 
+            className="fixed inset-0 z-0 bg-cover bg-center pointer-events-none opacity-25 filter blur-[0.5px]"
+            style={{ backgroundImage: "url('/fondo-familia.jpg')" }}
+            aria-hidden="true"
+          />
+          {/* Tinte institucional para garantizar contraste WCAG AA */}
+          <div className="fixed inset-0 z-0 bg-gradient-to-b from-slate-50/90 via-slate-50/95 to-slate-100/98 pointer-events-none" aria-hidden="true" />
+
+          <main className="relative z-10 flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10" role="main">
+            {children}
+          </main>
+        </div>
 
         {/* Pie de página institucional */}
         <footer className="border-t border-slate-200 bg-white py-8 text-xs text-slate-500" role="contentinfo">

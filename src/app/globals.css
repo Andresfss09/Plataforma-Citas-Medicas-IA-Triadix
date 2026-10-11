@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -10,14 +12,18 @@
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Indicadores de accesibilidad (WCAG 2.1 AA) para navegación con teclado */
-*:focus-visible {
-  outline: 3px solid #1d4ed8;
-  outline-offset: 2px;
+/* Tipografía de títulos con calidez editorial institucional */
+h1, h2, h3, .font-editorial {
+  letter-spacing: -0.02em;
 }
 
+/* Indicadores de accesibilidad (WCAG 2.1 AA) para navegación con teclado */
+*:focus-visible {
+  outline: 2px solid #0f766e;
+  outline-offset: 2px;
+}

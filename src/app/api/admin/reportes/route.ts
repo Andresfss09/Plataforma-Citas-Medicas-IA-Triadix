@@ -276,3 +276,4 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ exito: false, error: "Error interno al generar el reporte." }, { status: 500 });
   }
 }
+
