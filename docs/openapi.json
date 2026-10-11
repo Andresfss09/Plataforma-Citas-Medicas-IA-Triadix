@@ -1,0 +1,123 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "CitaVoz EPS API - EPS TRIADIX Cali",
+    "description": "API REST y catálogo de herramientas (MCP Tools) para el agendamiento asistido por voz de citas médicas en Cali, Colombia.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "EPS TRIADIX - Soporte Tecnológico",
+      "url": "https://triadix.test",
+      "email": "soporte@triadix.test"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Servidor de Desarrollo Local"
+    }
+  ],
+  "paths": {
+    "/api/auth/solicitar-otp": {
+      "post": {
+        "summary": "Solicitar código OTP de verificación",
+        "description": "Verifica tipo, número de documento y fecha de nacimiento del afiliado en EPS TRIADIX y emite un código OTP de 6 dígitos simulado.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["tipoDocumento", "numeroDocumento", "fechaNacimiento"],
+                "properties": {
+                  "tipoDocumento": { "type": "string", "enum": ["CC", "TI", "RC", "CE", "PA"] },
+                  "numeroDocumento": { "type": "string", "example": "1144123456" },
+                  "fechaNacimiento": { "type": "string", "example": "1960-04-15" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "OTP generado satisfactoriamente" },
+          "400": { "description": "Datos no coinciden o parámetros inválidos" },
+          "429": { "description": "Límite de tasa excedido" }
+        }
+      }
+    },
+    "/api/auth/verificar-otp": {
+      "post": {
+        "summary": "Verificar OTP y emitir sesión",
+        "description": "Valida el código de 6 dígitos contra el challengeId y emite una cookie httpOnly de sesión por 15 minutos.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["challengeId", "codigoOtp"],
+                "properties": {
+                  "challengeId": { "type": "string", "format": "uuid" },
+                  "codigoOtp": { "type": "string", "example": "123456" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Autenticación exitosa y cookie emitida" },
+          "401": { "description": "Código incorrecto o expirado" }
+        }
+      }
+    },
+    "/api/tools/execute": {
+      "post": {
+        "summary": "Ejecutar herramienta del agente (MCP HTTP Fallback)",
+        "description": "Punto de entrada unificado para invocar cualquiera de las 10 herramientas del agente de agendamiento.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["tool", "params"],
+                "properties": {
+                  "tool": {
+                    "type": "string",
+                    "enum": [
+                      "verificar_afiliado",
+                      "buscar_especialidad_por_motivo",
+                      "consultar_disponibilidad",
+                      "agendar_cita",
+                      "consultar_mis_citas",
+                      "reprogramar_cita",
+                      "cancelar_cita",
+                      "generar_comprobante_pdf",
+                      "escalar_a_humano",
+                      "reportar_urgencia"
+                    ]
+                  },
+                  "params": { "type": "object" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Herramienta ejecutada con éxito" },
+          "400": { "description": "Regla de negocio no satisfecha o parámetros erróneos" },
+          "429": { "description": "Demasiadas solicitudes" }
+        }
+      }
+    },
+    "/api/mcp/manifest": {
+      "get": {
+        "summary": "Manifiesto de herramientas MCP",
+        "description": "Lista el catálogo de herramientas y sus metadatos para clientes MCP compatibles.",
+        "responses": {
+          "200": { "description": "Listado de tools" }
+        }
+      }
+    }
+  }
+}
+
