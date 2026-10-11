@@ -137,7 +137,7 @@ export class ConversationalOrchestrator {
         if (resAgendar.exito) {
           contexto.citaAgendadaCodigo = resAgendar.data.codigoCita;
           contexto.estado = "COMPROBANTE_FINAL";
-          const rta = `¡Listo! Su cita quedó agendada con éxito bajo el código ${resAgendar.data.codigoCita}. Su comprobante en PDF está disponible en pantalla para descargar.`;
+          const rta = `¡Listo! Su cita quedó agendada bajo el código ${resAgendar.data.codigoCita}. ¿Quiere que le muestre el comprobante en pantalla o se lo envío por correo electrónico?`;
           contexto.historialTurnos.push({ role: "assistant", content: rta });
           return { respuestaVoz: rta, contextoActualizado: contexto, toolEjecutada: "agendar_cita" };
         } else {
