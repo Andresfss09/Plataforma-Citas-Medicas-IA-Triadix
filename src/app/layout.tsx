@@ -80,14 +80,14 @@ export default function RootLayout({
 
         {/* Contenido Principal con Fondo Familiar Cálido Institucional */}
         <div className="flex-1 relative flex flex-col">
-          {/* Capa de imagen de fondo de familia con overlay profesional */}
+          {/* Capa de imagen de fondo de familia con alta visibilidad y nitidez */}
           <div 
-            className="fixed inset-0 z-0 bg-cover bg-center pointer-events-none opacity-25 filter blur-[0.5px]"
+            className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat pointer-events-none opacity-65"
             style={{ backgroundImage: "url('/fondo-familia.jpg')" }}
             aria-hidden="true"
           />
-          {/* Tinte institucional para garantizar contraste WCAG AA */}
-          <div className="fixed inset-0 z-0 bg-gradient-to-b from-slate-50/90 via-slate-50/95 to-slate-100/98 pointer-events-none" aria-hidden="true" />
+          {/* Velo blanco translúcido suave para permitir que la familia se vea nítida y hermosa */}
+          <div className="fixed inset-0 z-0 bg-gradient-to-b from-slate-100/40 via-white/50 to-slate-100/60 pointer-events-none backdrop-blur-[0.5px]" aria-hidden="true" />
 
           <main className="relative z-10 flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10" role="main">
             {children}
