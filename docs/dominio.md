@@ -224,3 +224,4 @@ stateDiagram-v2
 2. **Ventana de Cancelación**: La cancelación por voz o web debe realizarse al menos **2 horas antes** del horario programado para dar oportunidad de reasignación del cupo.
 3. **Puntualidad en Sede**: Se instruye al usuario a presentarse con **20 minutos de anticipación** en la sede para el trámite de facturación de cuota moderadora y verificación de documentos.
 4. **Vigencia de Agendas**: Las agendas se publican quincenalmente con un horizonte de disponibilidad de hasta **30 días calendario**.
+

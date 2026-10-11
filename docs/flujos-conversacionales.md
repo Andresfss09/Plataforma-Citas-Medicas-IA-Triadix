@@ -169,3 +169,4 @@ sequenceDiagram
 * **Diálogo**:
   > **Usuario**: *"Doctora, tengo un dolor insoportable en el pecho que se me sube al cuello y no puedo casi respirar"*  
   > **Asistente (Tono Firme y Empático)**: *"⚠️ ALERTA MÉDICA: Por favor deténgase y escúcheme con atención. Los síntomas que me describe corresponden a una urgencia vital que NO puede esperar a una cita médica programada. Su vida es lo más importante: por favor comuníquese ya mismo a la Línea de Emergencias 123 en Cali o acuda inmediatamente a la clínica de urgencias más cercana, como nuestra Sede Tequendama o el Hospital Universitario del Valle. En su pantalla tiene el botón directo para llamar al 123."*
+

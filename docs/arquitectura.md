@@ -231,3 +231,4 @@ sequenceDiagram
 | **Herramientas del Agente** | WebMCP (`navigator.modelContext`) | Endpoints API / Server Actions HTTP | Ausencia de soporte de WebMCP en el navegador cliente. |
 | **Modelo LLM** | Google Gemini 1.5 Flash (Free Tier) | Groq (Llama-3.3-70B) / Ollama | Cuota superada (HTTP 429) o latencia mayor a 4 segundos. |
 | **Base de Datos** | PostgreSQL 16 + pgvector (Docker) | PGlite local (WASM + pgvector) | Entorno de desarrollo local sin contenedor activo. |
+

@@ -139,3 +139,4 @@ El backlog está priorizado bajo la metodología **MoSCoW** (*Must have*, *Shoul
 | **Conformidad de Accesibilidad** | **WCAG 2.1 Nivel AA (100%)** | Auditoría con herramientas automatizadas (Lighthouse / axe-core) y prueba con teclado. |
 | **Protección de Datos Sensibles** | **0% datos en texto plano** | Inspección de la base de datos asegurando cifrado AES-256-GCM y HMAC en todos los registros de pacientes. |
 | **Disponibilidad sin Costo** | **$0 USD en infraestructura** | Operación sobre capas gratuitas de Gemini/Groq, Docker open source y Next.js. |
+

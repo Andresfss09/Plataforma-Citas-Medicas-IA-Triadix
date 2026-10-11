@@ -7,17 +7,23 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-triadix_user}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-triadix_secret_2026}
       POSTGRES_DB: ${POSTGRES_DB:-triadix_citas}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    command: >
+      postgres
+      -c shared_preload_libraries=vector
+      -c max_connections=150
+      -c shared_buffers=256MB
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U triadix_user -d triadix_citas"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-triadix_user} -d ${POSTGRES_DB:-triadix_citas}"]
       interval: 5s
       timeout: 5s
       retries: 5
+      start_period: 10s
 
 volumes:
   pgdata:
     driver: local
-
