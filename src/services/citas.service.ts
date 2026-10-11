@@ -257,6 +257,21 @@ export async function reservarCita(
   const codigoCita = `CTX-2026-${Math.floor(10000 + Math.random() * 90000)}`;
   const citaId = crypto.randomUUID();
 
+function calcularHoraFin25Min(horaInicio: string): string {
+  try {
+    const partes = horaInicio.split(":");
+    let h = parseInt(partes[0], 10);
+    let m = parseInt(partes[1], 10) + 25; // Duración estándar EPS de 25 minutos por paciente
+    if (m >= 60) {
+      h = (h + Math.floor(m / 60)) % 24;
+      m = m % 60;
+    }
+    return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:00`;
+  } catch {
+    return horaInicio;
+  }
+}
+
   try {
     await db.insert(schema.citas).values({
       id: citaId,
@@ -268,7 +283,7 @@ export async function reservarCita(
       agendaId: slotReservado.id,
       fechaCita: slotReservado.fecha,
       horaInicio: slotReservado.horaInicio,
-      horaFin: slotReservado.horaFin,
+      horaFin: calcularHoraFin25Min(slotReservado.horaInicio),
       tipoCita: "consulta_externa",
       motivoConsultaEnc: motivoConsulta ? encryptSensitiveData(motivoConsulta) : null,
       canal: canal,

@@ -71,13 +71,17 @@ export function useVoiceAssistant() {
     }
   };
 
+  const [textoEnVivo, setTextoEnVivo] = useState<string>("");
+  const silenceTimerRef = useRef<any>(null);
+  const ultimoTranscriptRef = useRef<string>("");
+
   const iniciarReconocimientoFresco = () => {
     const SpeechRecognition =
       (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
       const msgNoSoporte =
-        "Tu navegador no cuenta con la API Web Speech activa. Puedes escribir tu consulta en el campo de texto o usar Chrome/Edge con permisos de micrófono.";
+        "Tu navegador actual no tiene activado el reconocimiento de voz por Web Speech. En Google Chrome o Microsoft Edge funciona de manera nativa. También puedes usar los accesos rápidos de voz o la caja de texto inferior.";
       setMensajes((prev) => [
         ...prev,
         {
@@ -100,29 +104,60 @@ export function useVoiceAssistant() {
 
       const recognition = new SpeechRecognition();
       recognition.lang = "es-CO";
-      recognition.continuous = false;
-      recognition.interimResults = false;
+      recognition.continuous = true; // Escucha continua para que no se cierre si el usuario toma una pausa
+      recognition.interimResults = true; // Ver lo que dice en tiempo real
       recognition.maxAlternatives = 1;
+
+      ultimoTranscriptRef.current = "";
+      setTextoEnVivo("");
 
       recognition.onstart = () => {
         setIsListening(true);
       };
 
       recognition.onresult = (event: any) => {
-        const transcript = event?.results?.[0]?.[0]?.transcript;
-        if (transcript && transcript.trim().length > 0) {
-          manejarEntradaUsuario(transcript.trim());
+        let textoAcumulado = "";
+        for (let i = 0; i < event.results.length; i++) {
+          textoAcumulado += event.results[i][0].transcript + " ";
+        }
+        textoAcumulado = textoAcumulado.trim();
+
+        if (textoAcumulado) {
+          ultimoTranscriptRef.current = textoAcumulado;
+          setTextoEnVivo(textoAcumulado);
+
+          // Si el usuario termina una frase y hace una pausa de 1.4 segundos, enviar automáticamente
+          if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+          silenceTimerRef.current = setTimeout(() => {
+            if (ultimoTranscriptRef.current.trim().length > 0) {
+              const textoFinal = ultimoTranscriptRef.current.trim();
+              ultimoTranscriptRef.current = "";
+              setTextoEnVivo("");
+              try {
+                recognition.stop();
+              } catch {}
+              setIsListening(false);
+              manejarEntradaUsuario(textoFinal);
+            }
+          }, 1400);
         }
       };
 
       recognition.onerror = (event: any) => {
-        setIsListening(false);
         const errorName = event?.error || "desconocido";
         console.warn("Reconocimiento de voz onerror:", errorName);
 
+        // Si es no-speech, NO detener la escucha, permitir que el usuario empiece a hablar
+        if (errorName === "no-speech") {
+          return;
+        }
+
+        setIsListening(false);
+        setTextoEnVivo("");
+
         if (errorName === "not-allowed" || errorName === "service-not-allowed") {
           const msgPermiso =
-            "Para hablar por micrófono, habilita el permiso de micrófono en el candado 🔒 de tu navegador (en Brave, asegúrate de permitir 'Servicios de voz' en Configuración). También puedes usar la caja de texto.";
+            "Acceso al micrófono no permitido. Por favor haz clic en el ícono del candado 🔒 en la barra de direcciones de tu navegador y activa 'Permitir micrófono'. En Brave, habilita además 'Servicios de voz' en Configuración de extensiones o utiliza Google Chrome / Edge.";
           setMensajes((prev) => [
             ...prev,
             {
@@ -132,11 +167,33 @@ export function useVoiceAssistant() {
               hora: new Date().toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" }),
             },
           ]);
+        } else if (errorName === "network") {
+          const msgNetwork =
+            "El servicio de voz del navegador no pudo conectarse. Si estás usando Brave Browser, este bloquea el servicio de voz por defecto; puedes usar Google Chrome, Microsoft Edge o las frases rápidas de consulta.";
+          setMensajes((prev) => [
+            ...prev,
+            {
+              id: `msg-net-${Date.now()}`,
+              remitente: "asistente",
+              texto: msgNetwork,
+              hora: new Date().toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" }),
+            },
+          ]);
         }
       };
 
       recognition.onend = () => {
-        setIsListening(false);
+        // Si había texto acumulado al terminar, procesarlo
+        if (ultimoTranscriptRef.current.trim().length > 0) {
+          const textoFinal = ultimoTranscriptRef.current.trim();
+          ultimoTranscriptRef.current = "";
+          setTextoEnVivo("");
+          setIsListening(false);
+          manejarEntradaUsuario(textoFinal);
+        } else {
+          setIsListening(false);
+          setTextoEnVivo("");
+        }
       };
 
       recognitionRef.current = recognition;
@@ -144,15 +201,24 @@ export function useVoiceAssistant() {
     } catch (err) {
       console.error("Error al iniciar reconocimiento:", err);
       setIsListening(false);
+      setTextoEnVivo("");
     }
   };
 
   const toggleEscucha = async () => {
     if (isListening) {
+      if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
       try {
         recognitionRef.current?.stop();
       } catch {}
       setIsListening(false);
+
+      if (ultimoTranscriptRef.current.trim().length > 0) {
+        const textoFinal = ultimoTranscriptRef.current.trim();
+        ultimoTranscriptRef.current = "";
+        setTextoEnVivo("");
+        manejarEntradaUsuario(textoFinal);
+      }
       return;
     }
 
@@ -161,30 +227,6 @@ export function useVoiceAssistant() {
       try {
         (window.speechSynthesis || synthRef.current)?.cancel();
       } catch {}
-    }
-
-    // Solicitar permiso explícito al micrófono vía getUserMedia
-    if (navigator?.mediaDevices?.getUserMedia) {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        mediaStreamRef.current = stream;
-        // Detener los tracks temporales para que SpeechRecognition acceda limpiamente al audio
-        stream.getTracks().forEach((track) => track.stop());
-      } catch (err) {
-        console.warn("Acceso a micrófono no permitido:", err);
-        const msgErrorMic =
-          "No se pudo acceder al micrófono. Por favor permite el acceso al micrófono en el ícono del candado 🔒 de tu navegador.";
-        setMensajes((prev) => [
-          ...prev,
-          {
-            id: `msg-mic-err-${Date.now()}`,
-            remitente: "asistente",
-            texto: msgErrorMic,
-            hora: new Date().toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" }),
-          },
-        ]);
-        return;
-      }
     }
 
     iniciarReconocimientoFresco();
@@ -281,6 +323,7 @@ export function useVoiceAssistant() {
     isListening,
     isSpeaking,
     isProcessing,
+    textoEnVivo,
     mensajes,
     comprobanteCodigo,
     alertaEmergencia,

@@ -20,6 +20,7 @@ export const VoiceAppointmentWidget: React.FC<VoiceAppointmentWidgetProps> = ({
     isListening,
     isSpeaking,
     isProcessing,
+    textoEnVivo,
     mensajes,
     comprobanteCodigo,
     alertaEmergencia,
@@ -34,6 +35,10 @@ export const VoiceAppointmentWidget: React.FC<VoiceAppointmentWidgetProps> = ({
     if (!textoManual.trim()) return;
     enviarTextoManual(textoManual.trim());
     setTextoManual("");
+  };
+
+  const handleAtajoVoz = (frase: string) => {
+    enviarTextoManual(frase);
   };
 
   return (
@@ -67,7 +72,7 @@ export const VoiceAppointmentWidget: React.FC<VoiceAppointmentWidgetProps> = ({
       <div className="grid lg:grid-cols-12 gap-6 items-start">
         
         {/* Columna Izquierda: Dispositivo de Voz & Entrada Alternativa */}
-        <div className="lg:col-span-5 bg-white rounded-2xl border border-slate-300 shadow-md p-6 space-y-6">
+        <div className="lg:col-span-5 bg-white rounded-2xl border border-slate-300 shadow-md p-6 space-y-5">
           <SiriVoiceButton
             isListening={isListening}
             isSpeaking={isSpeaking}
@@ -75,10 +80,67 @@ export const VoiceAppointmentWidget: React.FC<VoiceAppointmentWidgetProps> = ({
             onClick={toggleEscucha}
           />
 
+          {/* Transcripción en vivo si el micrófono está capturando voz */}
+          {isListening && textoEnVivo && (
+            <div className="p-3 bg-teal-50 border border-teal-300 rounded-xl animate-pulse">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-teal-900 mb-1">
+                <span className="w-2 h-2 rounded-full bg-teal-600 animate-ping" />
+                <span>Capturando voz en tiempo real:</span>
+              </div>
+              <p className="text-xs text-slate-800 font-medium italic">
+                &ldquo;{textoEnVivo}&rdquo;
+              </p>
+            </div>
+          )}
+
+          {/* Atajos de Consulta Rápida por Voz */}
+          <div className="space-y-2 pt-2">
+            <span className="block text-[11px] font-bold text-slate-600 uppercase tracking-wider">
+              Consultas Rápidas por Voz:
+            </span>
+            <div className="flex flex-wrap gap-1.5">
+              <button
+                type="button"
+                onClick={() => handleAtajoVoz("Buenos días")}
+                className="px-2.5 py-1 text-xs bg-slate-100 hover:bg-teal-50 hover:text-teal-900 hover:border-teal-400 border border-slate-300 rounded-lg text-slate-700 font-medium transition cursor-pointer"
+              >
+                👋 &ldquo;Buenos días&rdquo;
+              </button>
+              <button
+                type="button"
+                onClick={() => handleAtajoVoz("Tengo dolor de estómago y mala digestión")}
+                className="px-2.5 py-1 text-xs bg-slate-100 hover:bg-teal-50 hover:text-teal-900 hover:border-teal-400 border border-slate-300 rounded-lg text-slate-700 font-medium transition cursor-pointer"
+              >
+                🥗 &ldquo;Problema de nutrición / digestión&rdquo;
+              </button>
+              <button
+                type="button"
+                onClick={() => handleAtajoVoz("No veo bien de lejos y me duelen los ojos")}
+                className="px-2.5 py-1 text-xs bg-slate-100 hover:bg-teal-50 hover:text-teal-900 hover:border-teal-400 border border-slate-300 rounded-lg text-slate-700 font-medium transition cursor-pointer"
+              >
+                👁️ &ldquo;Problemas de visión&rdquo;
+              </button>
+              <button
+                type="button"
+                onClick={() => handleAtajoVoz("Necesito cita de medicina general en la sede Tequendama")}
+                className="px-2.5 py-1 text-xs bg-slate-100 hover:bg-teal-50 hover:text-teal-900 hover:border-teal-400 border border-slate-300 rounded-lg text-slate-700 font-medium transition cursor-pointer"
+              >
+                🏥 &ldquo;Medicina General Tequendama&rdquo;
+              </button>
+              <button
+                type="button"
+                onClick={() => handleAtajoVoz("Opción 1")}
+                className="px-2.5 py-1 text-xs bg-slate-100 hover:bg-teal-50 hover:text-teal-900 hover:border-teal-400 border border-slate-300 rounded-lg text-slate-700 font-medium transition cursor-pointer"
+              >
+                ✅ &ldquo;Opción 1&rdquo;
+              </button>
+            </div>
+          </div>
+
           {/* Entrada de Texto Suplementaria para Accesibilidad */}
-          <form onSubmit={handleEnviarManual} className="pt-5 border-t border-slate-200 space-y-2">
+          <form onSubmit={handleEnviarManual} className="pt-4 border-t border-slate-200 space-y-2">
             <label htmlFor="textoManual" className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-              Entrada Alternativa por Teclado:
+              Entrada por Teclado:
             </label>
             <div className="flex gap-2">
               <input

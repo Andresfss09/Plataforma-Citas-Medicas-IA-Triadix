@@ -690,15 +690,22 @@ export async function runFullSeed() {
   console.log("📅 Generando más de 2.000 Franjas Horarias para los próximos 30 días hábiles de Colombia...");
   const fechasHabiles = obtenerFechasHabilesProximas(20); // 20 días hábiles en Colombia
   const horasManana = [
-    { ini: "07:00:00", fin: "07:30:00" },
-    { ini: "08:00:00", fin: "08:30:00" },
-    { ini: "09:00:00", fin: "09:30:00" },
-    { ini: "10:30:00", fin: "11:00:00" },
+    { ini: "07:00:00", fin: "07:25:00" },
+    { ini: "07:30:00", fin: "07:55:00" },
+    { ini: "08:00:00", fin: "08:25:00" },
+    { ini: "08:30:00", fin: "08:55:00" },
+    { ini: "09:00:00", fin: "09:25:00" },
+    { ini: "09:30:00", fin: "09:55:00" },
+    { ini: "10:00:00", fin: "10:25:00" },
+    { ini: "10:30:00", fin: "10:55:00" },
   ];
   const horasTarde = [
-    { ini: "14:00:00", fin: "14:30:00" },
-    { ini: "15:00:00", fin: "15:30:00" },
-    { ini: "16:00:00", fin: "16:30:00" },
+    { ini: "14:00:00", fin: "14:25:00" },
+    { ini: "14:30:00", fin: "14:55:00" },
+    { ini: "15:00:00", fin: "15:25:00" },
+    { ini: "15:30:00", fin: "15:55:00" },
+    { ini: "16:00:00", fin: "16:25:00" },
+    { ini: "16:30:00", fin: "16:55:00" },
   ];
 
   let totalSlots = 0;

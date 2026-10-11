@@ -91,7 +91,7 @@ export async function GET(
           codigoCita: codigo,
           fechaCita: "2026-10-15",
           horaInicio: "08:30:00",
-          horaFin: "09:00:00",
+          horaFin: "08:55:00",
           afiliadoNombres: afiliado.nombresEnc,
           afiliadoApellidos: afiliado.apellidosEnc,
           afiliadoDoc: afiliado.numeroDocumentoEnc,
