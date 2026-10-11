@@ -57,7 +57,7 @@ export async function executeTool(
           .from(schema.afiliados)
           .where(eq(schema.afiliados.numeroDocumentoHash, docHash));
 
-        if (!afiliado || afiliado.tipoDocumento !== input.tipoDocumento) {
+        if (!afiliado) {
           resultData = {
             encontrado: false,
             mensaje: "El documento no figura en la base de afiliados de EPS TRIADIX.",
@@ -69,6 +69,7 @@ export async function executeTool(
             encontrado: true,
             afiliadoId: afiliado.id,
             nombreCompleto: `${nombres} ${apellidos}`,
+            tipoDocumento: afiliado.tipoDocumento,
             regimen: afiliado.regimen,
             categoria: afiliado.categoria,
             estadoAfiliacion: afiliado.estadoAfiliacion,

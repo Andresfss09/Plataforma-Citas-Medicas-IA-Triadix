@@ -13,7 +13,7 @@ export interface TriageResult {
  */
 const EMERGENCY_PATTERNS: { regex: RegExp; label: string; severity: "CRITICA" | "ALTA" }[] = [
   {
-    regex: /(dolor (fuerte|opresivo|intenso|agudo) en el pecho|opresi[oó]n en el pecho|siento que me va a dar un infarto|infarto|paro cardiaco)/i,
+    regex: /(dolor (muy )?(fuerte|opresivo|intenso|agudo) en el pecho|opresi[oó]n en el pecho|siento que me va a dar un infarto|infarto|paro cardiaco|dolor.*pecho.*brazo)/i,
     label: "Sospecha de evento coronario / dolor torácico agudo",
     severity: "CRITICA",
   },
