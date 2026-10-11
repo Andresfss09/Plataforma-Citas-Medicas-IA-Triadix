@@ -1,0 +1,57 @@
+name: CitaVoz EPS - CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "master", "main" ]
+  pull_request:
+    branches: [ "master", "main" ]
+
+jobs:
+  validate-and-test:
+    name: Lint, Test & Build
+    runs-on: ubuntu-latest
+
+    env:
+      NODE_ENV: test
+      ENCRYPTION_SECRET_KEY: 01234567890123456789012345678901
+      HMAC_SECRET_KEY: 01234567890123456789012345678901
+      LLM_PROVIDER: mock
+      APP_URL: http://localhost:3000
+
+    steps:
+      - name: 📥 Clonar repositorio
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Configurar Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: 📦 Instalar dependencias
+        run: npm ci
+
+      - name: 🔍 Verificación estricta de TypeScript
+        run: npx tsc --noEmit
+
+      - name: 🧪 Ejecutar Suite de Servicios de Citas y Concurrencia (Fase 2)
+        run: npx tsx --test src/services/citas.test.ts
+
+      - name: 🛠️ Ejecutar Suite de Herramientas y Auditoría (Fase 3)
+        run: npx tsx --test src/services/tools.test.ts
+
+      - name: 🤖 Ejecutar Banco de Evaluación Conversacional (40 Casos - Fase 4)
+        run: npx tsx src/evaluation/evaluator.ts
+
+      - name: 📄 Ejecutar Suite de Comprobantes PDF y QR (Fase 6)
+        run: npx tsx --test src/services/comprobante.test.ts
+
+      - name: 🌟 Ejecutar Suite de Diferenciales Innovadores (Fase 7)
+        run: npx tsx --test src/services/diferenciales.test.ts
+
+      - name: 🛡️ Ejecutar Suite de Seguridad y OWASP (Fase 8)
+        run: npx tsx --test src/services/seguridad.test.ts
+
+      - name: 🏗️ Compilación de producción (Next.js Build)
+        run: npm run build
+

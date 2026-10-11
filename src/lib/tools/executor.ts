@@ -180,6 +180,17 @@ export async function executeTool(
       // 5. consultar_mis_citas
       case "consultar_mis_citas": {
         const input = consultarMisCitasSchema.parse(params);
+
+        // Control de acceso multitenant: validar que no se acceda a datos de otro afiliado
+        if (context.sessionAfiliadoId && context.sessionAfiliadoId !== input.afiliadoId) {
+          return {
+            tool: toolName,
+            exito: false,
+            error: "Acceso no autorizado: No tiene permisos para consultar información de otro afiliado.",
+            auditId,
+          };
+        }
+
         const misCitas = await db
           .select({
             citaId: schema.citas.id,
