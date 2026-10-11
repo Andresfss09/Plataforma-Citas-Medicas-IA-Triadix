@@ -56,21 +56,13 @@ export function LoginModal({ onLoginSuccess }: { onLoginSuccess: (paciente: any)
   };
 
   return (
-    <div className="fixed inset-0 z-[100] overflow-y-auto bg-slate-950/80 backdrop-blur-sm">
-      {/* Fondo de pantalla completa con la imagen de la familia visible y cálida */}
-      <div 
-        className="fixed inset-0 bg-cover bg-center pointer-events-none opacity-40"
-        style={{ backgroundImage: "url('/fondo-familia.jpg')" }}
-        aria-hidden="true"
-      />
-
-      <div className="min-h-full flex items-center justify-center p-4 sm:p-6 lg:p-8 relative z-10">
-        <div className="relative w-full max-w-4xl bg-white rounded-2xl shadow-2xl border border-slate-300 overflow-hidden grid lg:grid-cols-12 my-auto">
-          
-          {/* Panel Izquierdo: Branding Corporativo EPS TRIADIX */}
-          <div className="lg:col-span-5 bg-[#0b1329] text-white p-6 sm:p-8 flex flex-col justify-between relative overflow-hidden border-b lg:border-b-0 lg:border-r border-slate-800">
-            {/* Fondo sutil de cuadrícula médica */}
-            <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px] opacity-40 pointer-events-none" />
+    <div className="w-full py-4 sm:py-8 flex items-center justify-center">
+      <div className="w-full max-w-4xl bg-white rounded-2xl shadow-xl border border-slate-300 overflow-hidden grid lg:grid-cols-12">
+        
+        {/* Panel Izquierdo: Branding Corporativo EPS TRIADIX */}
+        <div className="lg:col-span-5 bg-[#0b1329] text-white p-6 sm:p-8 flex flex-col justify-between relative overflow-hidden border-b lg:border-b-0 lg:border-r border-slate-800">
+          {/* Fondo sutil de cuadrícula médica */}
+          <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px] opacity-40 pointer-events-none" />
 
           <div className="relative z-10 space-y-6">
             <div className="flex items-center gap-3">
@@ -234,7 +226,6 @@ export function LoginModal({ onLoginSuccess }: { onLoginSuccess: (paciente: any)
           </div>
         </div>
 
-        </div>
       </div>
     </div>
   );
