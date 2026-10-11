@@ -1,8 +1,10 @@
 import { getDb } from "@/db";
 import * as schema from "@/db/schema";
-import { sql } from "drizzle-orm";
+import { sql, desc, eq } from "drizzle-orm";
 import Link from "next/link";
 import { AdminAuthGuard } from "@/components/admin/AdminAuthGuard";
+import { AdminReportesFiltro } from "@/components/admin/AdminReportesFiltro";
+import { decryptSensitiveData } from "@/lib/crypto";
 
 export const dynamic = "force-dynamic";
 
@@ -10,10 +12,32 @@ export default async function AdminDashboardPage() {
   const db = getDb();
 
   // Consultar datos reales de la base de datos de Neon
-  const totalCitas = await db.select({ count: sql<number>`count(*)` }).from(schema.citas);
-  const totalAfiliados = await db.select({ count: sql<number>`count(*)` }).from(schema.afiliados);
-  const totalSedes = await db.select().from(schema.sedesIps);
-  const totalAgendas = await db.select({ count: sql<number>`count(*)` }).from(schema.agendas);
+  const totalCitasRaw = await db.select({ count: sql<number>`count(*)` }).from(schema.citas);
+  const totalAfiliadosRaw = await db.select({ count: sql<number>`count(*)` }).from(schema.afiliados);
+  const totalSedesList = await db.select().from(schema.sedesIps);
+  const totalAgendasRaw = await db.select({ count: sql<number>`count(*)` }).from(schema.agendas);
+
+  // Consultar las últimas citas recientes reales en Neon
+  const ultimasCitas = await db
+    .select({
+      id: schema.citas.id,
+      codigoCita: schema.citas.codigoCita,
+      fechaCita: schema.citas.fechaCita,
+      horaInicio: schema.citas.horaInicio,
+      estado: schema.citas.estado,
+      canal: schema.citas.canal,
+      afiliadoDoc: schema.afiliados.numeroDocumento,
+      nombresEnc: schema.afiliados.nombresEnc,
+      apellidosEnc: schema.afiliados.apellidosEnc,
+      especialidad: schema.especialidades.nombre,
+      sede: schema.sedesIps.nombre,
+    })
+    .from(schema.citas)
+    .innerJoin(schema.afiliados, eq(schema.citas.afiliadoId, schema.afiliados.id))
+    .innerJoin(schema.especialidades, eq(schema.citas.especialidadId, schema.especialidades.id))
+    .innerJoin(schema.sedesIps, eq(schema.citas.sedeId, schema.sedesIps.id))
+    .orderBy(desc(schema.citas.createdAt))
+    .limit(6);
 
   const sedesOcupacion = [
     { nombre: "Sede Principal Tequendama (Sur)", comuna: 19, porcentaje: 94, citas: 790, capacidad: 850 },
@@ -34,23 +58,23 @@ export default async function AdminDashboardPage() {
 
   return (
     <AdminAuthGuard>
-      <div className="space-y-8 max-w-6xl mx-auto py-2">
+      <div className="space-y-8 max-w-7xl mx-auto py-2">
         
         {/* Encabezado Gerencial de Tecnología */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
           <div>
             <div className="flex items-center gap-2 mb-1.5">
-              <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200 font-mono">
-                Módulo TI • Auditoría SGSSS
+              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200 font-mono">
+                Gerencia de TI • Auditoría SGSSS
               </span>
-              <span className="text-xs text-slate-400">|</span>
+              <span className="text-xs text-slate-300">|</span>
               <span className="text-xs text-slate-500 font-medium">EPS TRIADIX Cali</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
               Consola de Operaciones, Red Asistencial y Telemetría
             </h1>
             <p className="text-xs text-slate-500 mt-1">
-              Supervisión de cuotas de atención, latencias del agente conversacional y reasignación de cupos liberados.
+              Supervisión en tiempo real de capacidad instalada, latencias del agente y descarga de reportes oficiales.
             </p>
           </div>
 
@@ -105,6 +129,11 @@ export default async function AdminDashboardPage() {
             <div className="text-[11px] text-slate-500">Corte vital sin diagnosticar</div>
           </div>
         </div>
+
+        {/* MÓDULO NUEVO: Generador y Descargador de Reportes Filtrados en Excel y PDF */}
+        <section>
+          <AdminReportesFiltro />
+        </section>
 
         {/* Tablas de Monitoreo: Ocupación por Sede y Especialidades */}
         <div className="grid lg:grid-cols-12 gap-6">
@@ -178,6 +207,75 @@ export default async function AdminDashboardPage() {
           </div>
 
         </div>
+
+        {/* Tabla Detallada de Auditoría: Últimas Citas Agendadas */}
+        <section className="bg-white rounded-xl border border-slate-200 p-6 shadow-xs space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
+                Bitácora de Citas Médicas Agendadas en Tiempo Real
+              </h2>
+              <p className="text-xs text-slate-500">Transacciones confirmadas en la base de datos de EPS TRIADIX</p>
+            </div>
+            <span className="text-xs font-semibold px-2.5 py-1 rounded bg-teal-50 text-teal-800 border border-teal-200">
+              Auditoría Ley 1581
+            </span>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr className="border-b border-slate-200 bg-slate-50 text-slate-600 font-semibold uppercase tracking-wider text-[11px]">
+                  <th className="py-2.5 px-3">Radicado</th>
+                  <th className="py-2.5 px-3">Fecha / Hora</th>
+                  <th className="py-2.5 px-3">Afiliado</th>
+                  <th className="py-2.5 px-3">Especialidad</th>
+                  <th className="py-2.5 px-3">Sede IPS (Cali)</th>
+                  <th className="py-2.5 px-3">Canal</th>
+                  <th className="py-2.5 px-3">Estado</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 text-slate-700 font-medium">
+                {ultimasCitas.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="text-center py-6 text-slate-400 italic">
+                      No hay citas registradas en la bitácora aún.
+                    </td>
+                  </tr>
+                ) : (
+                  ultimasCitas.map((c) => {
+                    let nom = "Afiliado";
+                    let ape = "";
+                    try {
+                      nom = decryptSensitiveData(c.nombresEnc);
+                      ape = decryptSensitiveData(c.apellidosEnc);
+                    } catch (e) {}
+
+                    return (
+                      <tr key={c.id} className="hover:bg-slate-50/70 transition">
+                        <td className="py-2.5 px-3 font-mono font-bold text-slate-900">{c.codigoCita}</td>
+                        <td className="py-2.5 px-3 font-mono">{c.fechaCita} {c.horaInicio.slice(0, 5)}</td>
+                        <td className="py-2.5 px-3">{nom} {ape}</td>
+                        <td className="py-2.5 px-3">{c.especialidad}</td>
+                        <td className="py-2.5 px-3">{c.sede}</td>
+                        <td className="py-2.5 px-3 uppercase text-[10px] font-bold text-teal-800 font-mono">{c.canal}</td>
+                        <td className="py-2.5 px-3">
+                          <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase font-mono ${
+                            c.estado === "programada"
+                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                              : "bg-rose-50 text-rose-700 border border-rose-200"
+                          }`}>
+                            {c.estado}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
 
       </div>
     </AdminAuthGuard>
