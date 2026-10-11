@@ -19,14 +19,14 @@ export const SiriVoiceButton: React.FC<SiriVoiceButtonProps> = ({
   let subtexto = "Haga clic para activar el micrófono y solicitar su cita médica";
   
   if (isListening) {
-    labelEstado = "Escuchando su solicitud...";
-    subtexto = "Hable con claridad indicando la especialidad, síntoma o sede en Cali";
+    labelEstado = "Escuchando su voz...";
+    subtexto = "Puede hablar ahora: salude, mencione sus síntomas o pida su cita médica";
   } else if (isProcessing) {
-    labelEstado = "Consultando disponibilidad médica...";
-    subtexto = "Verificando agendas en la red de clínicas de EPS TRIADIX";
+    labelEstado = "Procesando su solicitud con IA...";
+    subtexto = "Evaluando especialidad médica y consultando agendas en Cali...";
   } else if (isSpeaking) {
     labelEstado = "Asistente CitaVoz respondiendo...";
-    subtexto = "Por favor escuche atentamente la confirmación de su cita";
+    subtexto = "Escuche la orientación médica del asistente en tiempo real";
   }
 
   return (

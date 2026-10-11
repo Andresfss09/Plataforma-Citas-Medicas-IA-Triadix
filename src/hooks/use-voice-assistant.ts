@@ -11,12 +11,16 @@ export function useVoiceAssistant() {
   const [comprobanteCodigo, setComprobanteCodigo] = useState<string | undefined>();
   const [alertaEmergencia, setAlertaEmergencia] = useState<string | null>(null);
 
+  // Referencias para control de audio y reconocimiento
   const recognitionRef = useRef<any>(null);
   const synthRef = useRef<SpeechSynthesis | null>(null);
+  const mediaStreamRef = useRef<MediaStream | null>(null);
 
   // Silenciar errores tipo [object Event] no-Error en dev overlay
   useEffect(() => {
     if (typeof window === "undefined") return;
+
+    synthRef.current = window.speechSynthesis;
 
     const handleGlobalError = (event: ErrorEvent) => {
       if (event && !(event.error instanceof Error)) {
@@ -37,57 +41,18 @@ export function useVoiceAssistant() {
     };
   }, []);
 
-  // Inicializar Web Speech API al montar en el navegador
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      synthRef.current = window.speechSynthesis;
-
-      const SpeechRecognition =
-        (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-
-      if (SpeechRecognition) {
-        const recognition = new SpeechRecognition();
-        recognition.lang = "es-CO";
-        recognition.continuous = false;
-        recognition.interimResults = false;
-
-        recognition.onstart = () => setIsListening(true);
-
-        recognition.onresult = (event: any) => {
-          const transcript = event?.results?.[0]?.[0]?.transcript;
-          if (transcript) {
-            manejarEntradaUsuario(transcript);
-          }
-        };
-
-        recognition.onerror = (event: any) => {
-          if (event && typeof event.preventDefault === "function") {
-            try { event.preventDefault(); } catch {}
-          }
-          if (event && typeof event.stopPropagation === "function") {
-            try { event.stopPropagation(); } catch {}
-          }
-          setIsListening(false);
-        };
-
-        recognition.onend = () => {
-          setIsListening(false);
-        };
-
-        recognitionRef.current = recognition;
-      }
-    }
-  }, []);
-
   const hablarTexto = (texto: string) => {
-    if (!synthRef.current) return;
+    if (typeof window === "undefined") return;
+    const synth = window.speechSynthesis || synthRef.current;
+    if (!synth) return;
+
     try {
-      synthRef.current.cancel();
+      synth.cancel();
     } catch {}
 
     const utterance = new SpeechSynthesisUtterance(texto);
     utterance.lang = "es-CO";
-    utterance.rate = 0.95; // Ritmo cómodo para adultos mayores
+    utterance.rate = 0.98;
     utterance.pitch = 1.0;
 
     utterance.onstart = () => setIsSpeaking(true);
@@ -100,30 +65,129 @@ export function useVoiceAssistant() {
     };
 
     try {
-      synthRef.current.speak(utterance);
+      synth.speak(utterance);
     } catch {
       setIsSpeaking(false);
     }
   };
 
-  const toggleEscucha = () => {
+  const iniciarReconocimientoFresco = () => {
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      const msgNoSoporte =
+        "Tu navegador no cuenta con la API Web Speech activa. Puedes escribir tu consulta en el campo de texto o usar Chrome/Edge con permisos de micrófono.";
+      setMensajes((prev) => [
+        ...prev,
+        {
+          id: `msg-nosupport-${Date.now()}`,
+          remitente: "asistente",
+          texto: msgNoSoporte,
+          hora: new Date().toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" }),
+        },
+      ]);
+      hablarTexto(msgNoSoporte);
+      return;
+    }
+
+    try {
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.abort();
+        } catch {}
+      }
+
+      const recognition = new SpeechRecognition();
+      recognition.lang = "es-CO";
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      recognition.onstart = () => {
+        setIsListening(true);
+      };
+
+      recognition.onresult = (event: any) => {
+        const transcript = event?.results?.[0]?.[0]?.transcript;
+        if (transcript && transcript.trim().length > 0) {
+          manejarEntradaUsuario(transcript.trim());
+        }
+      };
+
+      recognition.onerror = (event: any) => {
+        setIsListening(false);
+        const errorName = event?.error || "desconocido";
+        console.warn("Reconocimiento de voz onerror:", errorName);
+
+        if (errorName === "not-allowed" || errorName === "service-not-allowed") {
+          const msgPermiso =
+            "Para hablar por micrófono, habilita el permiso de micrófono en el candado 🔒 de tu navegador (en Brave, asegúrate de permitir 'Servicios de voz' en Configuración). También puedes usar la caja de texto.";
+          setMensajes((prev) => [
+            ...prev,
+            {
+              id: `msg-perm-${Date.now()}`,
+              remitente: "asistente",
+              texto: msgPermiso,
+              hora: new Date().toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" }),
+            },
+          ]);
+        }
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current = recognition;
+      recognition.start();
+    } catch (err) {
+      console.error("Error al iniciar reconocimiento:", err);
+      setIsListening(false);
+    }
+  };
+
+  const toggleEscucha = async () => {
     if (isListening) {
       try {
         recognitionRef.current?.stop();
       } catch {}
       setIsListening(false);
-    } else {
-      if (synthRef.current) {
-        try {
-          synthRef.current.cancel();
-        } catch {}
-      }
+      return;
+    }
+
+    // Cancelar cualquier audio en reproducción
+    if (typeof window !== "undefined") {
       try {
-        recognitionRef.current?.start();
-      } catch {
-        setIsListening(false);
+        (window.speechSynthesis || synthRef.current)?.cancel();
+      } catch {}
+    }
+
+    // Solicitar permiso explícito al micrófono vía getUserMedia
+    if (navigator?.mediaDevices?.getUserMedia) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaStreamRef.current = stream;
+        // Detener los tracks temporales para que SpeechRecognition acceda limpiamente al audio
+        stream.getTracks().forEach((track) => track.stop());
+      } catch (err) {
+        console.warn("Acceso a micrófono no permitido:", err);
+        const msgErrorMic =
+          "No se pudo acceder al micrófono. Por favor permite el acceso al micrófono en el ícono del candado 🔒 de tu navegador.";
+        setMensajes((prev) => [
+          ...prev,
+          {
+            id: `msg-mic-err-${Date.now()}`,
+            remitente: "asistente",
+            texto: msgErrorMic,
+            hora: new Date().toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" }),
+          },
+        ]);
+        return;
       }
     }
+
+    iniciarReconocimientoFresco();
   };
 
   const contextoRef = useRef<any>({ etapa: "INICIO" });

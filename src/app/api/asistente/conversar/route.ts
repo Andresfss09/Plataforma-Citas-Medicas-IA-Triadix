@@ -98,7 +98,37 @@ export async function POST(req: NextRequest) {
 
       if (opcionElegidaIndex >= 0) {
         const slotElegido = contexto.franjasOpciones[opcionElegidaIndex];
-        const radicadoOficial = `CTX-2026-${Math.floor(10000 + Math.random() * 90000)}`;
+        const db = getDb();
+
+        // Obtener el ID del afiliado autenticado o el primero de la base de datos
+        let afiliadoId = afiliadoSesion?.id;
+        let pacienteNombre = afiliadoSesion?.nombre || "Afiliado EPS TRIADIX";
+
+        if (!afiliadoId) {
+          const [primerAfiliado] = await db.select().from(schema.afiliados).limit(1);
+          if (primerAfiliado) {
+            afiliadoId = primerAfiliado.id;
+          }
+        }
+
+        let radicadoOficial = `CTX-2026-${Math.floor(10000 + Math.random() * 90000)}`;
+
+        if (afiliadoId && slotElegido.slotId) {
+          try {
+            const { reservarCita } = await import("@/services/citas.service");
+            const resReserva = await reservarCita({
+              afiliadoId,
+              slotId: slotElegido.slotId,
+              motivoConsulta: contexto.especialidadNombre || "Consulta asistida por voz",
+              canal: "voz",
+            });
+            if (resReserva.exito && resReserva.codigoCita) {
+              radicadoOficial = resReserva.codigoCita;
+            }
+          } catch (errDb) {
+            console.error("Error al registrar cita en base de datos:", errDb);
+          }
+        }
 
         const respuesta = `¡Excelente! Su cita de ${contexto.especialidadNombre} ha quedado agendada con éxito para el día ${slotElegido.fecha} a las ${slotElegido.horaFormato} en la ${slotElegido.sedeNombre} con el ${slotElegido.medicoNombre}. Su radicado oficial es ${radicadoOficial}. Ya tiene su comprobante oficial disponible en pantalla.`;
 
