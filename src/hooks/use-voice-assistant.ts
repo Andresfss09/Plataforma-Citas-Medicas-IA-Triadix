@@ -126,6 +126,8 @@ export function useVoiceAssistant() {
     }
   };
 
+  const contextoRef = useRef<any>({ etapa: "INICIO" });
+
   const manejarEntradaUsuario = async (texto: string) => {
     const horaActual = new Date().toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" });
 
@@ -143,31 +145,45 @@ export function useVoiceAssistant() {
     setIsProcessing(true);
 
     try {
-      // Invocación a la API conversacional
-      const response = await fetch("/api/tools/execute", {
+      // Obtener información del afiliado autenticado si existe en cookies
+      let afiliadoSesion = null;
+      if (typeof document !== "undefined") {
+        try {
+          const match = document.cookie.match(/citavoz_paciente_info=([^;]+)/);
+          if (match) {
+            afiliadoSesion = JSON.parse(decodeURIComponent(match[1]));
+          }
+        } catch {}
+      }
+
+      // Invocación a la API conversacional inteligente
+      const response = await fetch("/api/asistente/conversar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          tool: "buscar_especialidad_por_motivo",
-          params: { motivoConsulta: texto },
+          mensaje: texto,
+          contexto: contextoRef.current,
+          afiliadoSesion,
         }),
       });
 
       const data = await response.json();
-      let respuestaAgente = "";
 
-      if (data?.data?.esEmergenciaVital) {
-        setAlertaEmergencia(data.data.alerta);
-        respuestaAgente = "⚠️ Alerta médica detectada: Por favor comuníquese de inmediato a la Línea 123 en Cali o acuda al servicio de urgencias.";
-      } else if (/\b\d{7,10}\b/.test(texto)) {
-        respuestaAgente = "¡Qué gusto saludarle! He verificado su documento en EPS TRIADIX. ¿Para qué especialidad médica necesita su cita?";
-      } else if (/s[ií]|confirmo|de acuerdo/i.test(texto)) {
-        const radicadoFicticio = `CTX-2026-${Math.floor(10000 + Math.random() * 90000)}`;
-        setComprobanteCodigo(radicadoFicticio);
-        respuestaAgente = `¡Listo! Su cita quedó agendada con éxito bajo el código ${radicadoFicticio}. Ya tiene su comprobante en PDF disponible en pantalla.`;
-      } else {
-        respuestaAgente = "Para su consulta en Cali tengo disponibilidad mañana a las 8:00 de la mañana en la Sede Versalles con el Dr. Carlos Caicedo. ¿Confirma esta cita?";
+      if (data.contexto) {
+        contextoRef.current = data.contexto;
       }
+
+      if (data.esEmergenciaVital && data.alertaEmergencia) {
+        setAlertaEmergencia(data.alertaEmergencia);
+      }
+
+      if (data.comprobanteCodigo) {
+        setComprobanteCodigo(data.comprobanteCodigo);
+      }
+
+      const respuestaAgente =
+        data.respuestaVoz ||
+        "Comprendo su solicitud. ¿Desea que busquemos una cita en Cali para esta especialidad?";
 
       setMensajes((prev) => [
         ...prev,
