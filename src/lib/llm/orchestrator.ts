@@ -90,31 +90,34 @@ export class ConversationalOrchestrator {
       return { respuestaVoz: rta, contextoActualizado: contexto };
     }
 
+    // 2.1 MODO AGENDAMIENTO POR FAMILIAR / ACUDIENTE
+    if (/(familiar|mam[aá]|pap[aá]|hijo|hija|esposo|esposa|acudiente)/i.test(inputClean) && !contexto.afiliadoId) {
+      const rta = "Con el mayor gusto le colaboro agendando la cita para su familiar. Por favor dígame el número de documento del paciente.";
+      contexto.historialTurnos.push({ role: "assistant", content: rta });
+      return { respuestaVoz: rta, contextoActualizado: contexto };
+    }
+
     // 3. MÁQUINA DE ESTADOS DETERMINISTA & PROCESAMIENTO
     contexto.historialTurnos.push({ role: "user", content: inputClean });
 
-    // PASO A: IDENTIFICACIÓN DEL AFILIADO
+    // PASO A: IDENTIFICACIÓN DEL AFILIADO (con soporte para dictado fonético dígito a dígito)
     if (!contexto.afiliadoId) {
-      const matchDoc = inputClean.match(/\b\d{7,10}\b/);
-      if (matchDoc) {
-        const doc = matchDoc[0];
-        const resVerif = await executeTool("verificar_afiliado", { tipoDocumento: "CC", numeroDocumento: doc });
+      // Usar normalizador fonético para cédulas habladas (ej. "uno uno cuatro cuatro...")
+      const { normalizarDocumentoHablado } = await import("../normalizers/colombian-speech");
+      const docNormalizado = normalizarDocumentoHablado(inputClean);
+
+      if (docNormalizado) {
+        const resVerif = await executeTool("verificar_afiliado", { tipoDocumento: "CC", numeroDocumento: docNormalizado });
         if (resVerif.exito && resVerif.data.encontrado) {
           contexto.afiliadoId = resVerif.data.afiliadoId;
           contexto.afiliadoNombre = resVerif.data.nombreCompleto;
           contexto.estado = "MOTIVO_SINTOMA";
 
-          // Si el usuario ya mencionó el motivo en la misma frase (ej. "Hola mi cédula es 1100031676 Quiero control de la tensión")
-          const restoTexto = inputClean.replace(doc, "").trim();
-          if (restoTexto.length > 5 && !/^(hola|mi c[eé]dula es)/i.test(restoTexto)) {
-            return await this.procesarTurno(contexto, restoTexto);
-          }
-
           const rta = `¡Qué gusto saludarle, ${contexto.afiliadoNombre}! Cuénteme, ¿para qué especialidad necesita su cita o qué molestia presenta?`;
           contexto.historialTurnos.push({ role: "assistant", content: rta });
           return { respuestaVoz: rta, contextoActualizado: contexto, toolEjecutada: "verificar_afiliado" };
         } else {
-          const rta = "No encuentro su documento en EPS TRIADIX. ¿Podría verificar el número y repetírmelo por favor?";
+          const rta = "No encuentro ese documento en EPS TRIADIX. ¿Podría verificar el número y repetírmelo por favor?";
           return { respuestaVoz: rta, contextoActualizado: contexto };
         }
       } else {
