@@ -2,6 +2,7 @@ import { getDb } from "@/db";
 import * as schema from "@/db/schema";
 import { decryptSensitiveData } from "@/lib/crypto";
 import { VoiceAppointmentWidget } from "@/components/voice/VoiceAppointmentWidget";
+import { AuthGuard } from "@/components/auth/AuthGuard";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +16,8 @@ export default async function HomePage() {
   const afiliadosList = await db.select().from(schema.afiliados).limit(5);
 
   return (
-    <div className="space-y-8 max-w-5xl mx-auto">
+    <AuthGuard>
+      <div className="space-y-8 max-w-5xl mx-auto">
       {/* Banner Institucional Accesible */}
       <section className="bg-gradient-to-r from-blue-900 to-indigo-900 rounded-3xl p-8 sm:p-10 text-white shadow-xl">
         <div className="max-w-3xl space-y-4">
@@ -74,5 +76,6 @@ export default async function HomePage() {
         </div>
       </section>
     </div>
+    </AuthGuard>
   );
 }

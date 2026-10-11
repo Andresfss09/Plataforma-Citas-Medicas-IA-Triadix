@@ -108,8 +108,10 @@ export const afiliados = pgTable(
   {
     id: varchar("id", { length: 36 }).primaryKey(),
     tipoDocumento: varchar("tipo_documento", { length: 10 }).notNull(), // CC, TI, RC, CE, PA
+    numeroDocumento: varchar("numero_documento", { length: 20 }), // Documento en texto plano para login
     numeroDocumentoHash: varchar("numero_documento_hash", { length: 64 }).notNull().unique(),
     numeroDocumentoEnc: text("numero_documento_enc").notNull(),
+    passwordHash: varchar("password_hash", { length: 128 }), // Clave para acceso a la plataforma
     nombresEnc: text("nombres_enc").notNull(),
     apellidosEnc: text("apellidos_enc").notNull(),
     telefonoEnc: text("telefono_enc").notNull(),
